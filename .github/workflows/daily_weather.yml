@@ -1,0 +1,31 @@
+name: Daily Weather Bot
+
+on:
+  schedule:
+    # Ogni giorno alle 6:30 ora italiana (UTC+1/UTC+2 in estate)
+    - cron: '30 5 * * *' # GitHub Actions usa UTC, quindi 5 UTC = 6:30 CET
+  workflow_dispatch: # permette anche l'esecuzione manuale
+
+jobs:
+  send_weather:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run weather bot
+        env:
+          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          CHAT_ID: ${{ secrets.CHAT_ID }}
+        run: python bot.py force
