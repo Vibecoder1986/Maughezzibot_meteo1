@@ -15,18 +15,20 @@ def get_weather():
         url = (
             f"https://api.open-meteo.com/v1/forecast?"
             f"latitude={coord['lat']}&longitude={coord['lon']}"
-            f"&current_weather=true&timezone=Europe%2FRome"
+            f"&daily=temperature_2m_max,temperature_2m_min,weathercode"
+            f"&timezone=Europe%2FRome"
         )
         try:
             r = requests.get(url, timeout=10).json()
-            if "current_weather" not in r:
+            if "daily" not in r:
                 messages.append(f" - {name}: errore dati")
                 continue
 
-            data = r["current_weather"]
-            temp = round(data["temperature"])
-            feels = temp
-            wmo = data["weathercode"]
+            data = r["daily"]
+            temp_max = data["temperature_2m_max"][0]
+            temp_min = data["temperature_2m_min"][0]
+            temp_avg = round((temp_max + temp_min) / 2)
+            wmo = data["weathercode"][0]
 
             if wmo == 0:
                 desc = "cielo sereno"
@@ -43,13 +45,15 @@ def get_weather():
             else:
                 desc = "variabile"
 
-            emoji = "☀️" if data.get("is_day", 1) else "🌙"
+            emoji = "☀️" if wmo == 0 else "🌥️"
             if "pioggia" in desc: emoji = "🌧️"
             elif "neve" in desc: emoji = "❄️"
             elif "nebbia" in desc: emoji = "🌫️"
             elif "temporali" in desc: emoji = "⛈️"
 
-            line = f"{emoji} {name}: {temp}°C (percepiti {feels}°C) - {desc}"
+            line = f"{emoji} {name}: temp media {temp_avg}°C - {desc}"
+            if name == "Pavia" and desc == "cielo sereno":
+                line += " Le gatte saranno contente!"
             messages.append(line)
         except Exception:
             messages.append(f" - {name}: problema connessione")
@@ -59,24 +63,23 @@ def get_weather():
 
 def send_telegram(message):
     token = os.getenv("TELEGRAM_TOKEN")
-    chat_id = os.getenv("CHAT_ID")
+    chat_id = os.getenv("CHAT_ID")  # deve essere -1003878538192 per il gruppo
     if not token or not chat_id:
         print("Mancano token o chat_id")
         return False
 
     url = f"https://api.telegram.org/bot{token}/sendMessage"
-    payload = {"chat_id": chat_id, "text": message}
+    payload = {
+        "chat_id": chat_id,
+        "text": message,
+        "parse_mode": "HTML"  # opzionale
+    }
 
     try:
         response = requests.post(url, json=payload, timeout=10)
         print("Status:", response.status_code)
         print("Risposta Telegram:", response.text)
-        if response.status_code == 200 and response.json().get("ok") == True:
-            print("Inviato correttamente")
-            return True
-        else:
-            print("Problema invio:", response.text)
-            return False
+        return response.status_code == 200 and response.json().get("ok") == True
     except Exception as e:
         print("Eccezione:", str(e))
         return False
