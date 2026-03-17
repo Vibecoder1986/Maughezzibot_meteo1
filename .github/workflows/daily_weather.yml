@@ -2,27 +2,32 @@ name: Daily Weather Bot
 
 on:
   schedule:
-    # Ogni giorno alle 6:30 ora italiana (UTC+1/UTC+2 in estate)
-    - cron: '30 5 * * *' # GitHub Actions usa UTC, quindi 5 UTC = 6:30 CET
-  workflow_dispatch: # permette anche l'esecuzione manuale
+    # ~8:00 ora italiana (7:00 UTC tutto l'anno)
+    # → 8:00 CET (inverno), 9:00 CEST (estate)
+    - cron: '0 7 * * *'
+  workflow_dispatch:  # per lanciare manualmente quando vuoi
 
 jobs:
   send_weather:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
+          python-version: '3.12'  # versione moderna e stabile
 
       - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          python -m pip install --upgrade pip setuptools wheel
+          if [ -f requirements.txt ]; then
+            pip install -r requirements.txt
+          else
+            echo "requirements.txt non trovato, salto installazione pacchetti"
+          fi
 
       - name: Run weather bot
         env:
