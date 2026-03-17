@@ -2,10 +2,14 @@ name: Daily Weather Bot
 
 on:
   schedule:
-    # ~8:00 ora italiana (7:00 UTC tutto l'anno)
-    # → 8:00 CET (inverno), 9:00 CEST (estate)
-    - cron: '0 7 * * *'
-  workflow_dispatch:  # per lanciare manualmente quando vuoi
+    # ~6:30 ora italiana, randomizzato per evitare picchi di carico GitHub
+    # Minuti tra 25-40 → 5:25–5:40 UTC
+    # → Inverno (CET/UTC+1): ~6:25–6:40 IT
+    # → Estate (CEST/UTC+2): ~7:25–7:40 IT
+    - cron: '25-40/5 5 * * *'   # ogni 5 minuti nel range 25-40 → 25,30,35,40
+    # Alternativa più sparsa (se vuoi ancora meno collisioni):
+    # - cron: '27,32,38 5 * * *'   # solo 3 slot fissi random-ish
+  workflow_dispatch:  # per test manuale immediato
 
 jobs:
   send_weather:
@@ -18,7 +22,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.12'  # versione moderna e stabile
+          python-version: '3.12'
 
       - name: Install dependencies
         run: |
@@ -26,7 +30,7 @@ jobs:
           if [ -f requirements.txt ]; then
             pip install -r requirements.txt
           else
-            echo "requirements.txt non trovato, salto installazione pacchetti"
+            echo "requirements.txt non trovato → salto installazione pacchetti extra"
           fi
 
       - name: Run weather bot
