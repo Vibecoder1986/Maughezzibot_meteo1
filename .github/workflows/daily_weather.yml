@@ -2,9 +2,9 @@ name: Daily Weather Bot
 
 on:
   schedule:
-    - cron: '30 7 * * *'   # Fisso alle 7:30 UTC ogni giorno
-                           # → 8:30 ora italiana in inverno (CET)
-                           # → 9:30 ora italiana in estate (CEST)
+    - cron: '30 3 * * *'   # Fisso alle 3:30 UTC ogni giorno
+                           # → 4:30 ora italiana in inverno (CET)
+                           # → 5:30 ora italiana in estate (CEST)
   workflow_dispatch:       # Per test manuali immediati
 
 jobs:
