@@ -7,7 +7,7 @@ on:
     # → Inverno (CET/UTC+1): ~6:25–6:40 IT
     # → Estate (CEST/UTC+2): ~7:25–7:40 IT
     - cron: '25-40/5 5 * * *'   # ogni 5 minuti nel range 25-40 → 25,30,35,40
-    # Alternativa più sparsa (se vuoi ancora meno collisioni):
+    # Allternativa più sparsa (se vuoi ancora meno collisioni):
     # - cron: '27,32,38 5 * * *'   # solo 3 slot fissi random-ish
   workflow_dispatch:  # per test manuale immediato
 
