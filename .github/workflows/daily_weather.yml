@@ -2,14 +2,10 @@ name: Daily Weather Bot
 
 on:
   schedule:
-    # ~6:30 ora italiana, randomizzato per evitare picchi di carico GitHub
-    # Minuti tra 25-40 → 5:25–5:40 UTC
-    # → Inverno (CET/UTC+1): ~6:25–6:40 IT
-    # → Estate (CEST/UTC+2): ~7:25–7:40 IT
-    - cron: '25-40/5 5 * * *'   # ogni 5 minuti nel range 25-40 → 25,30,35,40
-    # Allternativa più sparsa (se vuoi ancora meno collisioni):
-    # - cron: '27,32,38 5 * * *'   # solo 3 slot fissi random-ish
-  workflow_dispatch:  # per test manuale immediato
+    - cron: '30 7 * * *'   # Fisso alle 7:30 UTC ogni giorno
+                           # → 8:30 ora italiana in inverno (CET)
+                           # → 9:30 ora italiana in estate (CEST)
+  workflow_dispatch:       # Per test manuali immediati
 
 jobs:
   send_weather:
